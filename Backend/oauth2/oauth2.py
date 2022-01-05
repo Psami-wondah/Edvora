@@ -61,7 +61,12 @@ def get_user(db, username: str):
         user_dict = auth_serializer(user)
         return UserInDB(**user_dict)
 
-
+def check_token(db, username: str, token: str ):
+    session = db.tokens.find_one({"username": username, "token": token})
+    if session:
+        return True
+    else:
+        return False 
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
     if not user:
@@ -88,23 +93,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    duplicate_exception = HTTPException(
+    ended_session_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Another user logged in with your password",
+        detail="Your session has been ended",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        iat: datetime = datetime.strptime(payload.get("issue"),'%Y-%m-%d %H:%M:%S.%f')
+        # iat: datetime = datetime.strptime(payload.get("issue"),'%Y-%m-%d %H:%M:%S.%f')
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
     user = get_user(hive_db, username=token_data.username)
-    if iat < user.last_login:
-        raise duplicate_exception
+    # if iat < user.last_login:
+    #     raise duplicate_exception
+    session = check_token(hive_db, username=token_data.username, token=token)
+    if session == False:
+        raise ended_session_exception
     if user is None:
         raise credentials_exception
     return user
@@ -122,23 +130,23 @@ async def get_current_websocket_user(websocket: WebSocket, token: Optional[str] 
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    duplicate_exception = HTTPException(
+    ended_session_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Another user logged in with your password",
+        detail="Your session has been ended",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        iat: datetime = payload.get("iat")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
     user = get_user(hive_db, username=token_data.username)
-    if iat < user.last_login:
-        raise duplicate_exception
+    session = check_token(hive_db, username=token_data.username, token=token)
+    if session == False:
+        raise ended_session_exception
     if user is None:
         raise credentials_exception
     if token is None:

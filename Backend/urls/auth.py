@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 from db.serializers.user import user_serializer
+from db.serializers.room import serialize_list
 from oauth2.oauth2 import *
 from fastapi.responses import JSONResponse
 from db.config import db
+from db.models.user import UserSessionToken
 
 
 auth = APIRouter()
@@ -20,6 +22,8 @@ class UserLogin(BaseModel):
 
 
 
+
+
 @auth.post("/token", response_model=Token)
 async def login_for_access_token(data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, data.username, data.password)
@@ -31,12 +35,21 @@ async def login_for_access_token(data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    iat = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-    db.users.find_one_and_update({"username": user.username}, {"$set": {"last_login": datetime.now()}})
     access_token = create_access_token(
         
-        data={"sub": user.username, "issue": iat }, expires_delta=access_token_expires
+        data={"sub": user.username}, expires_delta=access_token_expires
     )
+    sessions = serialize_list(db.tokens.find({"username": user.username}))
+    if len(sessions) > 0:
+        session_no = sessions[-1]["session_id"]
+    else:
+        session_no = 0
+
+    db.tokens.insert_one({   
+        "username": user.username,
+        "token" : access_token,
+        "session_id": session_no+1
+    })
     
     return {"access_token": access_token, "token_type": "bearer", "expires": f"{ACCESS_TOKEN_EXPIRE_MINUTES}"}
 
@@ -72,5 +85,15 @@ async def login_for_access_token(data: UserLogin):
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    db.users.find_one_and_update({"username": user.username}, {"$set": {"last_login": datetime.now()}})
+    sessions = serialize_list(db.tokens.find({"username": user.username}))
+    if len(sessions) > 0:
+        session_no = sessions[-1]["session_id"]
+    else:
+        session_no = 0
+
+    db.tokens.insert_one({   
+        "username": user.username,
+        "token" : access_token,
+        "session_id": session_no+1
+    })
     return {"access_token": access_token, "token_type": "bearer", "expires": f"{ACCESS_TOKEN_EXPIRE_MINUTES}"}
