@@ -20,6 +20,9 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class LoginRes(Token):
+    user: User
+
 
 
 
@@ -70,7 +73,7 @@ async def create_user(reg: UserReg):
     
     return {'message': 'Registration succesful, Kindly Login', 'user': user_serializer(db.users.find_one({'username': reg.username}))}
 
-@auth.post("/api/v1/auth/login", response_model=Token)
+@auth.post("/api/v1/auth/login", response_model=LoginRes)
 async def login_for_access_token(data: UserLogin):
     user = authenticate_user(db, data.username, data.password)
     if not user:
@@ -95,4 +98,5 @@ async def login_for_access_token(data: UserLogin):
         "token" : access_token,
         "session_id": session_no+1
     })
-    return {"access_token": access_token, "token_type": "bearer", "expires": f"{ACCESS_TOKEN_EXPIRE_MINUTES}"}
+    user_details: User = user
+    return {"access_token": access_token, "token_type": "bearer", "user": user_details,"expires": f"{ACCESS_TOKEN_EXPIRE_MINUTES}"}
