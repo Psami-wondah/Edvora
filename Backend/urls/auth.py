@@ -63,8 +63,7 @@ async def create_user(reg: UserReg):
         "first_name": reg.first_name,
         'last_name': reg.last_name,
         "hashed_password": get_password_hash(reg.password),
-        "created_at": datetime.now(),
-        "last_login": datetime.now()
+        "created_at": datetime.now()
     }
     
     db.users.insert_one(data)
