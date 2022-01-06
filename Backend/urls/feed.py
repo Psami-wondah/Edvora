@@ -1,12 +1,14 @@
 from fastapi import APIRouter
 from fastapi import WebSocket
 from typing import List
+
+from starlette.websockets import WebSocketDisconnect
 from db.models.user import User
-from oauth2.oauth2 import get_current_websocket_user
+from oauth2.oauth2 import get_current_user, get_current_websocket_user
 from fastapi import Depends, status
 from db.config import db
-from db.serializers.room import room_serializer
-from db.serializers.message import message_serializer
+from db.serializers.room import room_serializer, serialize_list
+from db.serializers.message import message_list_serializer, message_serializer
 from bson.objectid import ObjectId
 from datetime import datetime
 from utils.utils import generate_short_id
@@ -36,33 +38,43 @@ class ConnectionManager:
 feed_manager = ConnectionManager()
 
 
-@feed.websocket("/ws/room/{short_id}")
+@feed.websocket("/ws/feed")
 async def websocket_endpoint(
     websocket: WebSocket,
-    short_id: str,
     user: User = Depends(get_current_websocket_user),
 ):  
-    room = room_serializer(db.rooms.find_one({"short_id": short_id}))
-    if room is None:
-        websocket.close(code=status.HTTP_404_NOT_FOUND)
+
     await feed_manager.connect(websocket)
-    while True:
-        data = await websocket.receive_json()
-        if "command" in data:
-            if data["command"] == "new_message":
-                message_data = {
-                    "author": user.username,
-                    "content": data["message"],
-                    "room": ObjectId(room['id']),
-                    "timestamp": datetime.now(),
-                    "short_id": generate_short_id()
-                }
-                db.messages.insert_one(message_data)
-                message = message_serializer(db.messages.find_one({"short_id": message_data["short_id"]}))
-                print(message)
-                await feed_manager.broadcast(
-                    {"message": message}
-                )
+    try:
+        while True:
+            data = await websocket.receive_json()
+            if "command" in data:
+                if data["command"] == "new_message":
+                    message_data = {
+                        "author": user.username,
+                        "message": data["message"],
+                        "timestamp": datetime.now(),
+                        "short_id": generate_short_id()
+                    }
+                    db.messages.insert_one(message_data)
+                    message = message_serializer(db.messages.find_one({"short_id": message_data["short_id"]}))
+                    print(message)
+                    try: 
+                        await feed_manager.broadcast(
+                            message
+                        )
+                    except RuntimeError:
+                        print("disconnected")
+                        # await feed_manager.connect(websocket)
+        
+    except WebSocketDisconnect:
+        feed_manager.disconnect(websocket)
+  
+
+
+@feed.get('/api/v1/get-messages')
+async def get_messages(user: User = Depends(get_current_user)):
+    return message_list_serializer(db.messages.find())
 
 
         

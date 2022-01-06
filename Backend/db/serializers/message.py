@@ -1,10 +1,13 @@
+from datetime import datetime
+
 def message_serializer(a) -> dict:
     return{
         "id": str(a["_id"]),
         "author": a["author"],
-        "content": a["content"],
-        "room": str(a['room']),
-        "media_url": a["media_url"],
-        "timestamp": str(a["timestamp"]),
+        "message": a["message"],
+        "timestamp": (a["timestamp"]).strftime("%a. %I:%M %p"),
         "short_id": a["short_id"]
     }
+
+def message_list_serializer(a) -> list:
+    return [message_serializer(i) for i in a ]
