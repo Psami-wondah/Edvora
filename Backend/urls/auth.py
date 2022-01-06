@@ -105,13 +105,13 @@ async def login_for_access_token(data: UserLogin):
     return {"access_token": access_token, "token_type": "bearer", "user": user_details, "session_id": insert["session_id"],"expires": f"{ACCESS_TOKEN_EXPIRE_MINUTES}"}
 
 
-@auth.get("/get-sessions")
+@auth.get("/api/v1/get-sessions")
 async def get_sessions(user: User = Depends(get_current_user)):
     return token_list_serializer(db.tokens.find({"username": user.username}))
 
 
 
-@auth.delete("/end-session/{id}")
+@auth.delete("/api/v1/end-session/{id}")
 async def end_session(id: int, user: User = Depends(get_current_user)):
     db.tokens.find_one_and_delete({"session_id": id, "username": user.username})
     return JSONResponse({"message": "session ended"}, status_code=status.HTTP_200_OK)
