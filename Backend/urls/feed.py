@@ -65,7 +65,7 @@ async def websocket_endpoint(
                         )
                     except RuntimeError:
                         print("disconnected")
-                        # await feed_manager.connect(websocket)
+                        await feed_manager.connect(websocket)
         
     except WebSocketDisconnect:
         feed_manager.disconnect(websocket)
