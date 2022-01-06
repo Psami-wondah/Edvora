@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from starlette.status import WS_1008_POLICY_VIOLATION
 from db.serializers.user import auth_serializer
 from db.models.user import User
 from dotenv import load_dotenv
@@ -143,9 +144,9 @@ async def get_current_websocket_user(websocket: WebSocket, token: Optional[str] 
     user = get_user(hive_db, username=token_data.username)
     session = check_token(hive_db, username=token_data.username, token=token)
     if session == False:
-        raise ended_session_exception
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
     if user is None:
-        raise credentials_exception
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
     if token is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
     return user
