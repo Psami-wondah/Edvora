@@ -16,11 +16,13 @@ const useConstructor = (callBack = () => {}) => {
 function Feed(props) {
   const user = JSON.parse(localStorage.getItem('userDetails'))
   const token = JSON.parse(localStorage.getItem('token'))
+  const sessionID = JSON.parse(localStorage.getItem('session'))
   const username = user?.username;
   const navigate = useNavigate();
   const [messageList, setMessageList] = useState([]);
   const [ws, setWs] = useState()
   const [messageInput, setMessageInput] = useState("");
+  const [sessionList, setSessionList] = useState([])
 
 
   const scrollToBottom = () => {
@@ -77,7 +79,7 @@ useEffect(() => {
           connect();
         }
         
-    }, 10);
+    }, 5);
   }, []);
   
 
@@ -99,7 +101,7 @@ useEffect(() => {
 
 
         } 
-        else if (response.status == 401){
+        else if (response.status === 401){
           Logout();
         }
         
@@ -114,6 +116,79 @@ useEffect(() => {
     }
     };
 
+    const getSessions = async () => {
+      try {
+        const response = await Fetch("get-sessions", "get");
+        console.log(response);
+        const data = await response.json();
+        console.log(data);
+
+        console.log(response.ok, "true?");
+        console.log(response.status, "status")
+
+        if (response.ok) {
+        setSessionList(data)
+
+
+
+        } 
+        else if (response.status === 401){
+          Logout();
+        }
+        
+        else {
+
+        console.log(data);
+        }
+        
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    }
+
+    const endSession = async (id) => {
+
+      try {
+        const response = await Fetch(`end-session/${id}`, "delete");
+        console.log(response);
+        const data = await response.json();
+        console.log(data);
+
+        console.log(response.ok, "true?");
+        console.log(response.status, "status")
+
+        if (response.ok) {
+
+        setSessionList(sessionList.filter(item => item.session_id !== id))
+        if (id === sessionID) {
+          Logout();
+        }
+
+
+
+        } 
+        else if (response.status === 401){ 
+          Logout();
+        }
+        
+        else {
+
+        console.log(data);
+        }
+        
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    }
+
+
+
   useConstructor(() => {
     connect();
 
@@ -123,7 +198,8 @@ useEffect(() => {
   });
 
   useEffect(()=>{
-    getMessages()
+    getMessages();
+    getSessions();
     console.log("this should happen once")
   }, []);
 
@@ -166,11 +242,14 @@ useEffect(() => {
 
   return (
     <>
+  
     <div className="top-bar">
-          <button onClick={Logout}>Logout</button>
+      <div className="welc-user"><span>Welcome {user?.username}</span></div>
+      <div className="log-out"><button onClick={Logout}>Logout</button></div>
+          
       </div>
       <div className="main-body">
-      <div>
+      <div className="chat-body">
         <ul id="chat-log">
           {messageList?.map((data, i) => {
             return (
@@ -209,6 +288,7 @@ useEffect(() => {
           size="100"
           name="text"
           className="messagebox"
+          placeholder="Enter a message.."
           onChange={(e) => setMessageInput(e.target.value)}
         />
  
@@ -226,10 +306,33 @@ useEffect(() => {
       </div>
 
       <div className="sessions">
+          <div>
+            <p>Sessions</p>
+          </div>
+          <ul className="sessions-ul">
+            {sessionList?.map((data, i)=> {
+              return (
+                <li
+                key={i}>
+              <div className="sess-cont">
+                <div>
+                <span>{sessionID === data.session_id? "Current Session" : `Session ${data.session_id}`}</span>
+                </div>
+                <div className="sess-but">
+                <button onClick={()=>{endSession(data.session_id)}}>logout</button>
+                </div>
+              </div>
+            </li>
 
+              )
+
+            })}
+            
+          </ul>
 
       </div>
       </div>
+     
     </>
   );
 }

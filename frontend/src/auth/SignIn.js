@@ -31,6 +31,10 @@ export default function Signin() {
             "token",
             JSON.stringify(data?.access_token)
         );
+        localStorage.setItem(
+          "session",
+          JSON.stringify(data?.session_id)
+      );
         localStorage.setItem("userDetails", JSON.stringify(data?.user)); //sets token and user details to localstorage
         navigate('/feed')
 
