@@ -20,6 +20,10 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+
+        
+
+
 class LoginRes(Token):
     user: User
     session_id: int
