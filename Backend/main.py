@@ -8,14 +8,7 @@ app = FastAPI(
     title="Edvora",
     description="Edvora feed",
     version="1.0.0",)
-origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:3000",
-    "https://edvora-pearl.vercel.app"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
