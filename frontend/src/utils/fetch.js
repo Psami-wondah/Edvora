@@ -12,6 +12,7 @@ export default function Fetch(Url, Method, Data = null) {
     var Response = fetch(ModifiedUrl, {
       method: Method,
       body: Data,
+      mode: "no-cors",
       headers: {
         "Content-Type": "application/json",
         cors: 'no-cors',
