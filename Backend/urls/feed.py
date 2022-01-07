@@ -21,6 +21,7 @@ class ConnectionManager:
         self.active_connections: List[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
+        print("Accepting connections")
         await websocket.accept()
         self.active_connections.append(websocket)
 
@@ -41,7 +42,7 @@ feed_manager = ConnectionManager()
 @feed.websocket("/ws/feed")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user: User = Depends(get_current_websocket_user),
+
 ):  
 
     await feed_manager.connect(websocket)
@@ -51,7 +52,7 @@ async def websocket_endpoint(
             if "command" in data:
                 if data["command"] == "new_message":
                     message_data = {
-                        "author": user.username,
+                        "author": data["username"],
                         "message": data["message"],
                         "timestamp": datetime.now(),
                         "short_id": generate_short_id()
@@ -68,7 +69,7 @@ async def websocket_endpoint(
                         await feed_manager.connect(websocket)
         
     except WebSocketDisconnect:
-        feed_manager.disconnect(websocket)
+        feed_manager.connect(websocket)
   
 
 
