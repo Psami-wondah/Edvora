@@ -14,7 +14,7 @@ const useConstructor = (callBack = () => {}) => {
 
 function Feed(props) {
   const user = JSON.parse(localStorage.getItem('userDetails'))
-  const token = JSON.parse(localStorage.getItem('token'))
+  // const token = JSON.parse(localStorage.getItem('token'))
   const sessionID = JSON.parse(localStorage.getItem('session'))
   const username = user?.username;
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ function Feed(props) {
   };
 
   function connect() {
-    const ws1 = new WebSocket("wss://"+BACKENDURL+"/ws/feed?token="+ token);
+    const ws1 = new WebSocket("wss://"+BACKENDURL+"/ws/feed");
     ws1.onopen= ()=> {
       console.log("websocket connected")
     }
@@ -202,6 +202,7 @@ useEffect(() => {
     const message = messageInput;
       if (ws.OPEN) {
         ws.send(JSON.stringify({
+        username: user?.username,
         command: "new_message",
         message: message,
         
