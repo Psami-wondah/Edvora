@@ -5,7 +5,7 @@ export default function Fetch(Url, Method, Data = null) {
       Data = JSON.stringify(Data);
     }
 
-    var ModifiedUrl = "https://"+ BACKENDURL + "/api/v1/" + Url;
+    var ModifiedUrl = "https://cors-anywhere.herokuapp.com/"+"https://"+ BACKENDURL + "/api/v1/" + Url;
 
   
     console.log(ModifiedUrl);
