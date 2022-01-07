@@ -8,12 +8,18 @@ app = FastAPI(
     title="Edvora",
     description="Edvora feed",
     version="1.0.0",)
-origins = ["*"]
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:3000",
+    "https://edvora-pearl.vercel.app",
+    "http://edvora-pearl.vercel.app",
+    "http://edvora-pearl.vercel.app/",
+    "https://edvora-pearl.vercel.app",
+]
 
-
-app.include_router(auth)
-app.include_router(feed)
-app.include_router(room)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -21,4 +27,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth)
+app.include_router(feed)
+app.include_router(room)
 
