@@ -5,7 +5,7 @@ export default function Fetch(Url, Method, Data = null) {
       Data = JSON.stringify(Data);
     }
 
-    var ModifiedUrl = "https://cors-anywhere.herokuapp.com/"+"https://"+ BACKENDURL + "/api/v1/" + Url;
+    var ModifiedUrl = "https://"+ BACKENDURL + "/api/v1/" + Url;
 
   
     console.log(ModifiedUrl);
@@ -15,8 +15,6 @@ export default function Fetch(Url, Method, Data = null) {
       headers: {
         "Content-Type": "application/json",
         cors: 'no-cors',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
         Authorization: `Bearer ${
           localStorage.getItem("userDetails")
             ? JSON?.parse(localStorage?.getItem("token"))
