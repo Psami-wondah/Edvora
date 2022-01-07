@@ -69,7 +69,7 @@ async def websocket_endpoint(
                         await feed_manager.connect(websocket)
         
     except WebSocketDisconnect:
-        feed_manager.connect(websocket)
+        feed_manager.disconnect(websocket)
   
 
 
