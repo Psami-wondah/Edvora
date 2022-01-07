@@ -35,7 +35,7 @@
     width: 50%;
     margin: auto;
     text-align: center;
-    border: 1px solid rgb(108, 205, 223);
+    border: 1px solid #52B788;
     border-radius: 10px;
     margin-top: 5%;
     padding-bottom: 5%;
@@ -73,7 +73,7 @@
     margin-top: 2%;
     margin-bottom: 5%;
     border-radius: 0.3rem;
-    border: 2px solid rgb(108, 205, 223);
+    border: 2px solid #52B788;
 }
 
 .form-container button{
@@ -89,14 +89,14 @@
 .signup-btn{
     border: none;
     margin-bottom: 3%;
-    background-color: rgb(108, 205, 223);
+    background-color: #52B788;
     color: white;
 }
 
 .createacc-btn {
     background-color: white;
-    border: 1px solid rgb(108, 205, 223);
-    color: rgb(108, 205, 223);
+    border: 1px solid #52B788;
+    color: #52B788;
 }
 
 .top-bar {
@@ -148,10 +148,11 @@
 
 .messagebox{
 
-    padding: 2%;
+    padding: 1%;
     border-bottom-left-radius: 0.5rem;
     border-top-left-radius: 0.5rem;
     border: 1px solid #52B788;
+    
 }
 
 .sendbox{
@@ -159,7 +160,7 @@
     bottom: 0;
     width: 67.7%;
     display: grid;
-    grid-template-columns: 85% 15%;
+    grid-template-columns: 80% 20%;
     padding: 1%;
     background-color: transparent;
     
@@ -244,3 +245,98 @@
 }
 
 
+@media only screen and (max-width: 600px) {
+
+    .main-rec {
+        width: 80%;
+        margin-top: 30%;
+    }
+    .txt {
+        font-size: 1rem;
+    }
+    .auth-input-container label{
+        font-size: 0.7rem;
+        font-weight: bold;
+    
+    }
+
+
+    .auth-input-container{
+
+
+        width: 70%;
+        margin-bottom: 2%;
+    
+    }
+    .main-body{
+        grid-template-columns: auto;
+    }
+    .chat-body{
+        width: 100%;
+    }
+
+
+    .sessions{
+       display: none;
+    
+    }
+
+    .sendbox{
+
+        width: 98%;
+        margin: auto;
+
+       
+    }
+
+    .messagebox{
+        padding: 7% 4% 0% 4%;
+        resize: none;
+        outline: none;
+    }
+ 
+
+    .replies {
+        width: 70%;
+        margin-left: 2%;
+
+    }
+
+    .sent{
+        width: 70%;
+        margin-left: 26%;
+        padding: 1%;
+    }
+    .mainmessage{
+        margin-top: 1%;
+        margin-bottom: 2%;
+        font-size: 0.7rem;
+    }
+
+    .author{
+        margin-left: 4%;
+    }
+    #chat-log{
+        padding: 0;
+        padding-bottom: 6%;
+        padding-top: 9%;
+    }
+
+    .welc-user{
+        font-size: 1rem;
+    }
+
+    .log-out button{
+        padding: 3% 6%;
+        border-radius: 0.3rem;
+        margin-right: 5%;
+
+    }
+    .top-bar{
+        padding: 2%;
+    }
+
+    
+
+
+}

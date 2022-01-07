@@ -257,7 +257,7 @@ useEffect(() => {
                 className={data.author === username ? "sent" : "replies"}
                 key={i}
               >
-                <img src="" alt="" />
+
                 <div className="authordiv">
                 <span className="author">{data.author}</span>
                 </div>
@@ -282,7 +282,7 @@ useEffect(() => {
         <br />
         <div className="sendbox">
 
-        <input
+        <textarea
           id="chat-message-input"
           type="text"
           size="100"
