@@ -14,10 +14,7 @@ export default function Fetch(Url, Method, Data = null) {
       body: Data,
       headers: {
         "Content-Type": "application/json",
-        mode: 'no-cors',
-        headers: {
-          'Access-Control-Allow-Origin':'*'
-        },
+        cors: 'no-cors',
         Authorization: `Bearer ${
           localStorage.getItem("userDetails")
             ? JSON?.parse(localStorage?.getItem("token"))
