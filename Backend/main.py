@@ -8,7 +8,15 @@ app = FastAPI(
     title="Edvora",
     description="Edvora feed",
     version="1.0.0",)
+origins = ['*']
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(auth)
 app.include_router(feed)
 app.include_router(room)
