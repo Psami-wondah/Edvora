@@ -3,8 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import Fetch from "../utils/fetch";
 import { BACKENDURL } from "../config";
-
-// import reconnectingWebsocket from "./Chat/reconnecting-websocket";
+import audio from "../../src/Audio/you-wouldnt-believe-510.ogg"
 
 const useConstructor = (callBack = () => {}) => {
   const [hasBeenCalled, setHasBeenCalled] = useState(false);
@@ -22,7 +21,8 @@ function Feed(props) {
   const [messageList, setMessageList] = useState([]);
   const [ws, setWs] = useState()
   const [messageInput, setMessageInput] = useState("");
-  const [sessionList, setSessionList] = useState([])
+  const [sessionList, setSessionList] = useState([]);
+  const [sound] = useState(new Audio(audio)) 
 
 
   const scrollToBottom = () => {
@@ -47,25 +47,12 @@ function Feed(props) {
   }
 
 
-
-//   ws.onmessage= function(event) {
-//       console.log(event.data)
-//   }
-
-// function getMessage () {
-//     ws.onmessage = (e) => {
-//         console.log(e.data);
-//         const message_data = JSON.parse(e.data);
-//         return message_data
-//       };
-
-      
-// }
 useEffect(() => {
     setInterval(function () {
         ws.onmessage = async (e) =>{
             const mess = await JSON.parse(e.data)
             setMessageList((oldArray) => [...oldArray, mess]);
+            sound.play();
             console.log(mess)
         }
         ws.onclose = () => {

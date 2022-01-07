@@ -152,6 +152,7 @@
     border-bottom-left-radius: 0.5rem;
     border-top-left-radius: 0.5rem;
     border: 1px solid #52B788;
+    resize: none;
     
 }
 
