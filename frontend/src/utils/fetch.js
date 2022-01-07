@@ -14,7 +14,7 @@ export default function Fetch(Url, Method, Data = null) {
       body: Data,
       headers: {
         "Content-Type": "application/json",
-        mode: 'cors',
+        mode: 'no-cors',
         headers: {
           'Access-Control-Allow-Origin':'*'
         },

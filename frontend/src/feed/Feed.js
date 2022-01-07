@@ -46,10 +46,7 @@ function Feed(props) {
       setWs(ws1)
   }
 
-  function initialiseChat(event) {
-      getMessages();
-      connect()
-  }
+
 
 //   ws.onmessage= function(event) {
 //       console.log(event.data)
