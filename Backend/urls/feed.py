@@ -75,7 +75,11 @@ async def websocket_endpoint(
 
 @feed.get('/api/v1/get-messages')
 async def get_messages(user: User = Depends(get_current_user)):
-    return message_list_serializer(db.messages.find())[-50:]
+    messages = message_list_serializer(db.messages.find())
+    if len(messages) > 50:
+        return messages[-50:]
+    else:
+        return messages
 
 
         
