@@ -25,6 +25,7 @@ function Feed(props) {
   const [messageInput, setMessageInput] = useState("");
   const [sessionList, setSessionList] = useState([]);
   const [count, setCount] = useState(0)
+
   const [sound] = useState(new Audio(audio)) 
   
 
@@ -40,6 +41,7 @@ function Feed(props) {
     const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'] })
     socket.on('connect', (data) => {
       console.log(data)
+
     })
       
       setWs(socket)
@@ -220,7 +222,7 @@ function Feed(props) {
     e.preventDefault();
     const messageInputDom = document.querySelector("#chat-message-input");
     const message = messageInput;
-        ws.emit("message", JSON.stringify({
+        ws.emit("mess", JSON.stringify({
         username: user?.username,
         command: "new_message",
         message: message,
@@ -234,8 +236,10 @@ function Feed(props) {
 
 
   function Logout(){
+      ws.emit("left")
       localStorage.clear()
       navigate('/signin');
+      
   }
 
   return (
