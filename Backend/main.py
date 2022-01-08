@@ -69,7 +69,7 @@ async def print_message(sid, data):
                     }
     db.messages.insert_one(message_data)
     message = message_serializer(db.messages.find_one({"short_id": message_data["short_id"]}))
-    await sio.emit("new_message", message)
+    await sio.emit("new_message", message, broadcast=True)
 
 @sio.on("disconnect")
 async def disconnect(sid):
