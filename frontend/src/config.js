@@ -1,1 +1,1 @@
-export const BACKENDURL = "edvora-feed.herokuapp.com"
+export const BACKENDURL = "https://edvora-feed.herokuapp.com"

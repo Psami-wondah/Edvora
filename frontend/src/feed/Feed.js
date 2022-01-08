@@ -4,13 +4,15 @@ import { useNavigate } from "react-router";
 import Fetch from "../utils/fetch";
 import { BACKENDURL } from "../config";
 import audio from "../../src/Audio/you-wouldnt-believe-510.ogg"
+import { io } from "socket.io-client";
 
-const useConstructor = (callBack = () => {}) => {
-  const [hasBeenCalled, setHasBeenCalled] = useState(false);
-  if (hasBeenCalled) return;
-  callBack();
-  setHasBeenCalled(true);
-};
+
+// const useConstructor = (callBack = () => {}) => {
+//   const [hasBeenCalled, setHasBeenCalled] = useState(false);
+//   if (hasBeenCalled) return;
+//   callBack();
+//   setHasBeenCalled(true);
+// };
 
 function Feed(props) {
   const user = JSON.parse(localStorage.getItem('userDetails'))
@@ -22,8 +24,9 @@ function Feed(props) {
   const [ws, setWs] = useState()
   const [messageInput, setMessageInput] = useState("");
   const [sessionList, setSessionList] = useState([]);
+  const [count, setCount] = useState(0)
   const [sound] = useState(new Audio(audio)) 
-
+  
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -34,37 +37,35 @@ function Feed(props) {
   };
 
   function connect() {
-    const ws1 = new WebSocket("wss://"+BACKENDURL+"/ws/feed");
-    ws1.onopen= ()=> {
-      console.log("websocket connected")
-    }
-    ws1.onerror = (e) =>{
-      Logout();
-    }
-    
+    const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'] })
+    socket.on('connect', (data) => {
+      console.log(data)
+    })
       
-      setWs(ws1)
+      setWs(socket)
+
   }
 
 
-useEffect(() => {
-    setInterval(function () {
-        ws.onmessage = async (e) =>{
-            const mess = await JSON.parse(e.data)
-            setMessageList((oldArray) => [...oldArray, mess]);
-            sound.play();
-            console.log(mess)
-        }
-        ws.onclose = () => {
-            console.log("WebSocket closed let's reopen");
-            connect();
-        }
-        if (ws.CLOSE){
-          connect();
-        }
+
+// useEffect(() => {
+
+//         // ws.onmessage = async (e) =>{
+
+//         // }
+//         // ws.onclose = () => {
+//         //     console.log("WebSocket closed let's reopen");
+//         //     connect();
+//         // }
+//         // if (ws.CLOSE){
+//         //   connect();
+//         // }
+        // ws.on('new_message', (data) => {
+        //   console.log(data)
+        // })
         
-    }, 5);
-  }, []);
+
+  // }, []);
   
 
   const  getMessages = async (e) => {
@@ -169,21 +170,40 @@ useEffect(() => {
     }
 
 
+
     }
+    
+    useEffect(()=>{
+      if (count===0){
+        
+      ws?.on("new_message", (data) => {
+        console.log(data)
+        const mess = data
+        setMessageList((oldArray) => [...oldArray, mess]);
+        sound.play();
+
+      })}
+      return ()=>{
+        setCount(count+1)
+      }
+      
+
+    })
 
 
+  // useConstructor(() => {
 
-  useConstructor(() => {
-    connect();
-
-    console.log(
-      "This only happens ONCE and it happens BEFORE the initial render."
-    );
-  });
+  //   console.log(
+  //     "This only happens ONCE and it happens BEFORE the initial render."
+  //   );
+  // });
 
   useEffect(()=>{
     getMessages();
     getSessions();
+    connect();
+
+
     console.log("this should happen once")
   }, []);
 
@@ -200,20 +220,13 @@ useEffect(() => {
     e.preventDefault();
     const messageInputDom = document.querySelector("#chat-message-input");
     const message = messageInput;
-      if (ws.OPEN) {
-        ws.send(JSON.stringify({
+        ws.emit("message", JSON.stringify({
         username: user?.username,
         command: "new_message",
         message: message,
-        
-
         }));
-        messageInputDom.value = "";}
-        
-        
-
+        messageInputDom.value = "";
     
-
 
   };
 
