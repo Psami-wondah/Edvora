@@ -54,10 +54,11 @@ app.mount("/", socket_app)  # Here we mount socket app to main fastapi app
 @sio.on("connect")
 async def connect(sid, env):
     print("SocketIO connect")
-    await sio.emit("connect", "connected")
+    sio.enter_room(sid, "feed")
+    await sio.emit("connect", f"Connected as {sid}")
 
 
-@sio.on('message')
+@sio.on('mess')
 async def print_message(sid, data):
     print("Socket ID", sid)
     data = json.loads(data)
@@ -69,11 +70,17 @@ async def print_message(sid, data):
                     }
     db.messages.insert_one(message_data)
     message = message_serializer(db.messages.find_one({"short_id": message_data["short_id"]}))
-    await sio.emit("new_message", message, broadcast=True)
+    await sio.emit("new_message", message, room="feed")
 
 @sio.on("disconnect")
 async def disconnect(sid):
     print("SocketIO disconnect")
+
+@sio.on('left')
+async def left_room(sid):
+    sio.leave_room(sid, "feed") 
+    print(f'{sid} Left')
+  
 
 
 
