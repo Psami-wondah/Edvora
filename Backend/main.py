@@ -82,9 +82,16 @@ async def disconnect(sid):
     print("SocketIO disconnect")
 
 @sio.on('left')
-async def left_room(sid):
+async def left_room(sid, data):
     sio.leave_room(sid, "feed") 
+    await sio.emit("user_left", f'{data} left', room="feed")
     print(f'{sid} Left')
+
+@sio.on("joined")
+async def joined(sid, data):
+    await sio.emit("user_joined", f'{data} connected', room="feed")
+    print(f'{data} connected')
+
   
 @app.on_event("startup")
 async def startup():
