@@ -115,6 +115,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return user
 
+async def get_sio_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return False
+        token_data = TokenData(username=username)
+    except JWTError:
+        return False
+    user = get_user(hive_db, username=token_data.username)
+    session = check_token(hive_db, username=token_data.username, token=token)
+    if session == False:
+        return False
+    if user is None:
+        return False
+    return user
+
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:

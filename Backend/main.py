@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from db.serializers.message import message_serializer
+from oauth2.oauth2 import get_current_user, get_sio_user
 from urls.auth import auth
 from urls.feed import feed
 from urls.room import room
@@ -13,6 +14,7 @@ import json
 from dotenv import load_dotenv
 from db.models.user import User
 import os
+from socketio.exceptions import ConnectionRefusedError
 load_dotenv()
 
 
@@ -57,10 +59,17 @@ app.mount("/", socket_app)  # Here we mount socket app to main fastapi app
 
 
 @sio.on("connect")
-async def connect(sid, env):
-    print("SocketIO connect")
-    sio.enter_room(sid, "feed")
-    await sio.emit("connect", f"Connected as {sid}")
+async def connect(sid, env, auth):
+    if auth:
+        user = await get_sio_user(auth["token"])
+        if user:
+            print("SocketIO connect")
+            sio.enter_room(sid, "feed")
+            await sio.emit("connect", f"Connected as {sid}")
+        else:
+            raise ConnectionRefusedError("authentication failed")
+    else:
+        raise ConnectionRefusedError("no auth token")
 
 
 @sio.on('mess')
