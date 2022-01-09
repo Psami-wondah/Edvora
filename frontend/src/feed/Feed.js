@@ -22,7 +22,6 @@ function Feed(props) {
   const navigate = useNavigate();
   const [messageList, setMessageList] = useState([]);
   const [ws, setWs] = useState()
-  const socketRef = useRef
   const [messageInput, setMessageInput] = useState("");
   const [sessionList, setSessionList] = useState([]);
   const [count, setCount] = useState(0)
@@ -54,9 +53,13 @@ function Feed(props) {
     })
 
 
-   
-    
-      
+    socket.on("new_message", (data) => {
+      console.log(data)
+      const mess = data
+      setMessageList((oldArray) => [...oldArray, mess]);
+      sound.play();
+    })
+
       setWs(socket)
 
   }
@@ -190,23 +193,17 @@ function Feed(props) {
 
     }
     
-    useEffect(()=>{
-      if (count===0){
+    // useEffect(()=>{
+    //   if (count===0){
         
-      ws?.on("new_message", (data) => {
-        console.log(data)
-        const mess = data
-        setMessageList((oldArray) => [...oldArray, mess]);
-        sound.play();
 
-      })
-    }
-      return ()=>{
-        setCount(count+1)
-      }
+    // }
+    //   return ()=>{
+    //     setCount(count+1)
+    //   }
       
 
-    })
+    // })
 
 
   // useConstructor(() => {
