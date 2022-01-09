@@ -16,7 +16,7 @@ import { io } from "socket.io-client";
 
 function Feed(props) {
   const user = JSON.parse(localStorage.getItem('userDetails'))
-  // const token = JSON.parse(localStorage.getItem('token'))
+  const token = JSON.parse(localStorage.getItem('token'))
   const sessionID = JSON.parse(localStorage.getItem('session'))
   const username = user?.username;
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ function Feed(props) {
   const [ws, setWs] = useState()
   const [messageInput, setMessageInput] = useState("");
   const [sessionList, setSessionList] = useState([]);
-  const [count, setCount] = useState(0)
+
 
   const [sound] = useState(new Audio(audio)) 
   
@@ -39,9 +39,17 @@ function Feed(props) {
 
    function connect() {
      console.log("connecting")
-    const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'] })
+    const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'], auth: {token: token}} )
     socket.once('connect', async (data) => {
       socket.emit("joined", user?.username) 
+      
+    })
+
+    socket.on("connect_error", (err)=> {
+      console.log("Socket connection failed: "+err.message)
+      if (err.message==="authentication failed"){
+        Logout();
+      }
     })
 
     socket.on("user_joined", (datum)=>{
@@ -252,7 +260,6 @@ function Feed(props) {
 
   async function Logout(){
       ws.emit("left", user?.username)
-      
       localStorage.clear()
       navigate('/signin');
       
