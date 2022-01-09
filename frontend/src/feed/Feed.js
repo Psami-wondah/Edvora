@@ -235,12 +235,14 @@ function Feed(props) {
     e.preventDefault();
     const messageInputDom = document.querySelector("#chat-message-input");
     const message = messageInput;
+      if(messageInput.trim()!==""){
         ws.emit("mess", JSON.stringify({
         username: user?.username,
         command: "new_message",
-        message: message,
+        message: message.trim(),
         }));
         messageInputDom.value = "";
+        setMessageInput("")}
     
 
   };
