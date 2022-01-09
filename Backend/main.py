@@ -10,11 +10,16 @@ from typing import Any
 from db.config import db
 from utils.utils import generate_short_id
 import json
+from dotenv import load_dotenv
+from db.models.user import User
+import os
+load_dotenv()
 
 
 import socketio
+mgr = socketio.AsyncRedisManager(os.getenv('REDIS_URL'))
 
-sio: Any = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+sio: Any = socketio.AsyncServer(async_mode="asgi", client_manager=mgr, cors_allowed_origins="*")
 socket_app = socketio.ASGIApp(sio)
 
 
@@ -81,7 +86,9 @@ async def left_room(sid):
     sio.leave_room(sid, "feed") 
     print(f'{sid} Left')
   
-
+@app.on_event("startup")
+async def startup():
+    User.init()
 
 
 

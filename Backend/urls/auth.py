@@ -5,6 +5,7 @@ from oauth2.oauth2 import *
 from fastapi.responses import JSONResponse
 from db.config import db
 from db.models.user import UserSessionToken
+from pymongo.errors import DuplicateKeyError
 
 
 auth = APIRouter()
@@ -64,8 +65,6 @@ async def login_for_access_token(data: OAuth2PasswordRequestForm = Depends()):
 
 @auth.post('/api/v1/auth/register', status_code=status.HTTP_201_CREATED, response_model=RegRes)
 async def create_user(reg: UserReg):
-    if db.users.find_one({'username':reg.username}): 
-        return JSONResponse({'message': 'username already exists'}, status_code=status.HTTP_400_BAD_REQUEST)
     data = {
         "username": reg.username,
         "first_name": reg.first_name,
@@ -73,8 +72,12 @@ async def create_user(reg: UserReg):
         "hashed_password": get_password_hash(reg.password),
         "created_at": datetime.now()
     }
-    
-    db.users.insert_one(data)
+    try:
+        db.users.insert_one(data)
+    except DuplicateKeyError:
+        return JSONResponse({'message': 'username already exists'}, status_code=status.HTTP_400_BAD_REQUEST)
+
+
     
     return {'message': 'Registration succesful, Kindly Login', 'user': user_serializer(db.users.find_one({'username': reg.username}))}
 
