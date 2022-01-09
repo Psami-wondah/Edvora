@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useNavigate } from "react-router";
 import Fetch from "../utils/fetch";
@@ -22,6 +22,7 @@ function Feed(props) {
   const navigate = useNavigate();
   const [messageList, setMessageList] = useState([]);
   const [ws, setWs] = useState()
+  const socketRef = useRef
   const [messageInput, setMessageInput] = useState("");
   const [sessionList, setSessionList] = useState([]);
   const [count, setCount] = useState(0)
@@ -37,16 +38,30 @@ function Feed(props) {
     });
   };
 
-  function connect() {
-    const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'] })
-    socket.on('connect', (data) => {
-      console.log(data)
-
+   function connect() {
+     console.log("connecting")
+    const socket = io.connect("127.0.0.1:8000", { transports: ['websocket', 'polling', 'flashsocket'] })
+    socket.once('connect', async (data) => {
+      socket.emit("joined", user?.username) 
     })
+
+    socket.on("user_joined", (datum)=>{
+      console.log(datum)
+    })
+
+    socket.on("user_left", (data) => {
+      console.log(data)
+    })
+
+
+   
+    
       
       setWs(socket)
 
   }
+
+
 
 
 
@@ -184,7 +199,8 @@ function Feed(props) {
         setMessageList((oldArray) => [...oldArray, mess]);
         sound.play();
 
-      })}
+      })
+    }
       return ()=>{
         setCount(count+1)
       }
@@ -235,8 +251,9 @@ function Feed(props) {
 
 
 
-  function Logout(){
-      ws.emit("left")
+  async function Logout(){
+      ws.emit("left", user?.username)
+      
       localStorage.clear()
       navigate('/signin');
       
