@@ -40,7 +40,7 @@ function Feed(props) {
 
    function connect() {
      console.log("connecting")
-    const socket = io.connect("127.0.0.1:8000", { transports: ['websocket', 'polling', 'flashsocket'] })
+    const socket = io.connect(BACKENDURL, { transports: ['websocket', 'polling', 'flashsocket'] })
     socket.once('connect', async (data) => {
       socket.emit("joined", user?.username) 
     })
@@ -92,7 +92,7 @@ function Feed(props) {
         const response = await Fetch("get-messages", "get");
         console.log(response);
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         console.log(response.ok, "true?");
         console.log(response.status, "status")
@@ -123,7 +123,7 @@ function Feed(props) {
         const response = await Fetch("get-sessions", "get");
         console.log(response);
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         console.log(response.ok, "true?");
         console.log(response.status, "status")
